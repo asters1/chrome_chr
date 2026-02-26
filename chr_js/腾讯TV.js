@@ -14,7 +14,7 @@
     'use strict';
   //全局变量
     var SELECT_VIDEO_INDEX=0
-const enterDblInterval = 300;
+const enterDblInterval = 500;
     let lastEnterTime = 0;
     let clickTimer = null;
 
@@ -42,6 +42,43 @@ const enterDblInterval = 300;
 }
 
     `);
+
+
+    // 防抖函数
+    function debounce(func, wait) {
+        let timeout;
+        return function(...args) {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(this, args), wait);
+        };
+    }
+
+    // 监听函数
+    const printLines = debounce(function() {
+let firstVisibleImage=null
+let firstVisibleImageIndex=0
+const images = document.querySelectorAll('.poster-view__layer');
+//console.log(images)
+
+    for (let i=0;i<images.length;i++) {
+        let img=images[i]
+      const rect = img.getBoundingClientRect();
+      //判断窗口是否在可视范围内
+      if (rect.top >= 0 && rect.top <= window.innerHeight) {
+        firstVisibleImage = img;
+          firstVisibleImageIndex=i
+        break;
+      }
+    }
+
+//console.log(firstVisibleImage)
+select_by_index(firstVisibleImageIndex)
+     
+    }, 300); // 100毫秒内只触发一次
+
+    // 监听滚轮事件
+    window.addEventListener('wheel', printLines, { passive: true });
+
     function get_video_list(){
      var offset ={"left":0.0,"top":0.0}
              var video =[];
@@ -106,7 +143,7 @@ document.querySelector('div.txp_btn.txp_btn_next_u').click()
        if ($(e.target).closest('#player-component').length && e.key === 'w') {
     e.preventDefault();
       e.stopImmediatePropagation();
-alert("上键")
+//alert("上键")
   }
            }
 }, true);
@@ -136,13 +173,13 @@ document.querySelector('div.txp_btn.txp_btn_fullscreen').click();
 
               }
 
-          if (e.key === 'm') {
+          if (e.key === 'ArrowDown') {
               const aa=document.querySelector('#player-component')
               const keydownEvent = new KeyboardEvent('keydown', { key: 'ArrowDown',  bubbles: true,  cancelable: true });
               aa.focus()
           aa.dispatchEvent(keydownEvent)
           }
-        if (e.key === 'n') {
+        if (e.key === 'ArrowUp') {
               const aa=document.querySelector('#player-component')
               const keydownEvent = new KeyboardEvent('keydown', { key: 'ArrowUp',  bubbles: true,  cancelable: true });
               aa.focus()
@@ -183,12 +220,12 @@ if(!hasCover){
     let res_list= get_video_list()
   let  video_row_length=res_list[0].length
   // 下键逻辑：选中的div成为activeElement后，滚动到视口居中
-  if (e.key === 's') {
+  if (e.key === 'ArrowDown') {
 SELECT_VIDEO_INDEX=SELECT_VIDEO_INDEX+video_row_length
 select_by_index(SELECT_VIDEO_INDEX)
   }
 
-  if (e.key === 'w') {
+  if (e.key === 'ArrowUp') {
 SELECT_VIDEO_INDEX=SELECT_VIDEO_INDEX-video_row_length
            if(SELECT_VIDEO_INDEX<0){
       SELECT_VIDEO_INDEX=0
